@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Iniciar Sesión de Bailon</title>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            body {
+                background-color: #f5f5f5;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+            }
+
+            .login-container {
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                padding: 40px;
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .login-header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .login-header h1 {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+
+            .login-header p {
+                color: #666;
+                font-size: 14px;
+            }
+
+            .login-form {
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-size: 14px;
+                color: #333;
+            }
+
+            .form-group input {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-size: 14px;
+                transition: border-color 0.3s;
+            }
+
+            .form-group input:focus {
+                outline: none;
+                border-color: #4285f4;
+            }
+
+            .login-button {
+                width: 100%;
+                padding: 12px;
+                background-color: #4285f4;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .login-button:hover {
+                background-color: #3367d6;
+            }
+
+            .divider {
+                display: flex;
+                align-items: center;
+                margin: 20px 0;
+            }
+
+            .divider::before,
+            .divider::after {
+                content: "";
+                flex: 1;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .divider span {
+                padding: 0 10px;
+                color: #666;
+                font-size: 14px;
+            }
+
+            #g_id_onload,
+            .g_id_signin {
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="login-container">
+            <div class="login-header">
+                <h1>Bienvenido de nuevo</h1>
+            </div>
+
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="user">Usuario</label>
+                    <input type="email" id="user" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="pass">Contraseña</label>
+                    <input type="password" id="pass" name="password" required>
+                </div>
+                <button type="button" id="btnIniciar" class="login-button">Iniciar sesión</button>
+            </form>
+
+            <div class="divider">
+                <span>O</span>
+            </div>
+
+            <!-- Login con Google -->
+            <div id="g_id_onload"
+                 data-client_id="872730400534-4josm5bcq4enqvlfkf8l7ll7ln76rics.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-theme="outline"
+                 data-size="large">
+            </div>
+        </div>
+        <script>
+            function setCookie(nombre, valor, dias) {
+                const fecha = new Date();
+                fecha.setTime(fecha.getTime() + (dias * 24 * 60 * 60 * 1000));
+                const expira = "expires=" + fecha.toUTCString();
+                document.cookie = nombre + "=" + valor + ";" + expira + ";path=/";
+            }
+            let btnIniciar = document.getElementById("btnIniciar");
+            btnIniciar.addEventListener("click", function () {
+                let user = document.getElementById("user").value;
+                let pass = document.getElementById("pass").value;
+                let url = `logueousuario?user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`;
+
+                fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.resultado === "ok") {
+                                console.log(data.token);
+                                setCookie("token", data.token, 7);
+                                //alert("Inicio de sesión exitoso, todo esta bien");
+                                window.location.href = "clientes.html";
+                            } else {
+                                alert("Usuario o contraseña incorrectos");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error al procesar la solicitud:", error);
+                        });
+            });
+
+            function handleCredentialResponse(response) {
+                const id_token = response.credential;
+                console.log(id_token);
+                fetch('servletbailon', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id_token})
+                }).then(res => res.json())
+                        .then(data => {
+                            if (data.resultado === 'ok') {
+                                setCookie("token", data.token, 7);
+                                window.location.href = "clientes.html";
+                            } else {
+                                alert('Error en login con Google');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error al procesar el login:', err);
+                            alert('No se pudo procesar el inicio de sesión con Google.');
+                        });
+            }
+        </script>
+    </body>
+</html>
