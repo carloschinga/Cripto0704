@@ -3,17 +3,13 @@ package servlet;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -68,7 +64,6 @@ public class AuthValverde extends HttpServlet {
                 // Crear sesión y guardar email
                 HttpSession sesion = request.getSession();
                 sesion.setAttribute("usuario", email);
-
                 out.println("{\"resultado\":\"ok\",\"token\":\"" + token + "\"}");
             } else {
                 out.println("{\"resultado\":\"error\",\"mensaje\":\"Token inválido\"}");
