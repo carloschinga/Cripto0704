@@ -184,7 +184,7 @@
             function handleCredentialResponse(response) {
                 const id_token = response.credential;
                 console.log(id_token);
-                fetch('servletbailon', {
+                fetch('logeobailon', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({id_token})
